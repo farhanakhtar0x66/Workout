@@ -3,13 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>CaliSprint Tracker</title>
-  <!-- Mobile App / PWA Capabilities -->
+  <title>CaliSprint</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="CaliSprint">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#0f172a">
+  <meta name="theme-color" content="#0b0f17">
   
   <style>
     :root {
@@ -21,7 +18,6 @@
       --success: #34d399;
       --text: #f1f5f9;
       --text-muted: #94a3b8;
-      --danger: #f87171;
     }
 
     * {
@@ -43,110 +39,117 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 14px;
     }
 
-    h1 {
-      font-size: 1.3rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
+    h1 { font-size: 1.3rem; font-weight: 700; }
 
     .streak-badge {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      padding: 6px 12px;
+      padding: 4px 10px;
       border-radius: 20px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--accent);
       font-weight: 600;
+    }
+
+    /* Week Navigation */
+    .week-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      background: var(--card-bg);
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+    }
+    .week-btn {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    .week-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
     }
 
     /* Day Selector Tabs */
     .day-selector {
       display: flex;
       gap: 6px;
-      overflow-x: auto;
-      padding-bottom: 8px;
       margin-bottom: 16px;
-      scrollbar-width: none;
     }
-    .day-selector::-webkit-scrollbar { display: none; }
-
     .day-chip {
       flex: 1;
-      min-width: 44px;
-      padding: 8px 4px;
+      padding: 8px 2px;
       text-align: center;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 10px;
       color: var(--text-muted);
-      font-size: 0.75rem;
       cursor: pointer;
       transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
     }
-
+    .day-chip .d-name { font-size: 0.75rem; font-weight: 600; }
+    .day-chip .d-num { font-size: 0.65rem; opacity: 0.8; }
+    
     .day-chip.active {
       background: var(--accent);
       color: #0b0f17;
       border-color: var(--accent);
-      font-weight: 700;
+    }
+    .day-chip.has-data:not(.active) {
+      border-color: var(--success);
     }
 
-    /* Workout Card */
+    /* Main Card */
     .card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
     }
 
     .card-header {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 12px;
+      align-items: flex-start;
+      margin-bottom: 14px;
     }
+    .card-title { font-size: 1.05rem; font-weight: 600; }
+    .card-subtitle { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
 
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-
-    .card-subtitle {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    /* Exercise Rows */
+    /* Exercise Items */
     .exercise-item {
       background: #0f1520;
       border: 1px solid var(--card-border);
       border-radius: 10px;
       padding: 12px;
       margin-bottom: 10px;
-      transition: border 0.2s;
     }
-
     .exercise-item.done {
       border-color: var(--success);
-      background: rgba(52, 211, 153, 0.04);
+      background: rgba(52, 211, 153, 0.05);
     }
-
     .exercise-top {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       margin-bottom: 8px;
     }
-
-    .exercise-name {
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-
+    .exercise-name { font-size: 0.9rem; font-weight: 600; }
     .custom-checkbox {
       width: 22px;
       height: 22px;
@@ -154,29 +157,28 @@
       cursor: pointer;
     }
 
+    /* Multi-set input boxes */
     .set-inputs {
       display: flex;
       gap: 8px;
-      align-items: center;
     }
-
     .input-field {
       width: 100%;
       background: #1a2233;
       border: 1px solid var(--card-border);
       color: var(--text);
-      padding: 8px 10px;
+      padding: 7px 8px;
       border-radius: 6px;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       outline: none;
+      text-align: center;
     }
     .input-field:focus { border-color: var(--accent); }
 
-    /* Controls & Weight Input */
     .meta-inputs {
       display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
+      gap: 8px;
+      margin-bottom: 14px;
     }
 
     .btn {
@@ -185,38 +187,32 @@
       color: #0b0f17;
       border: none;
       border-radius: 10px;
-      padding: 14px;
-      font-size: 1rem;
+      padding: 13px;
+      font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 4px 14px var(--accent-glow);
     }
-
     .btn:active { transform: scale(0.98); }
 
-    /* Graph Section */
-    .graph-container {
-      margin-top: 10px;
-    }
-
+    /* Graph Canvas */
     canvas {
       width: 100%;
-      height: 180px;
+      height: 170px;
       display: block;
       margin-top: 10px;
     }
 
     .backup-actions {
       display: flex;
-      gap: 10px;
-      margin-top: 15px;
+      gap: 8px;
+      margin-top: 12px;
     }
-
     .btn-secondary {
       background: transparent;
       border: 1px solid var(--card-border);
       color: var(--text-muted);
-      padding: 8px;
+      padding: 7px;
       border-radius: 8px;
       font-size: 0.75rem;
       cursor: pointer;
@@ -232,7 +228,7 @@
       color: #0b0f17;
       padding: 8px 16px;
       border-radius: 20px;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
       opacity: 0;
       transition: opacity 0.3s;
@@ -245,21 +241,20 @@
 
   <header>
     <h1>CaliSprint</h1>
-    <div class="streak-badge" id="adherenceBadge">0 Logs</div>
+    <div class="streak-badge" id="totalSessionsBadge">0 Logged</div>
   </header>
 
-  <!-- Weekday Tabs -->
-  <div class="day-selector" id="daySelector">
-    <div class="day-chip" data-day="0">Sun</div>
-    <div class="day-chip" data-day="1">Mon</div>
-    <div class="day-chip" data-day="2">Tue</div>
-    <div class="day-chip" data-day="3">Wed</div>
-    <div class="day-chip" data-day="4">Thu</div>
-    <div class="day-chip" data-day="5">Fri</div>
-    <div class="day-chip" data-day="6">Sat</div>
+  <!-- Week Switcher -->
+  <div class="week-nav">
+    <button class="week-btn" id="prevWeekBtn">&larr; Prev</button>
+    <div class="week-label" id="weekRangeLabel">Current Week</div>
+    <button class="week-btn" id="nextWeekBtn">Next &rarr;</button>
   </div>
 
-  <!-- Main Checklist Form -->
+  <!-- Weekday Tabs -->
+  <div class="day-selector" id="daySelector"></div>
+
+  <!-- Active Workout Card -->
   <div class="card">
     <div class="card-header">
       <div>
@@ -271,327 +266,357 @@
     <div id="exerciseList"></div>
   </div>
 
-  <!-- Additional Day Stats -->
   <div class="meta-inputs">
-    <input type="number" step="0.1" id="dailyWeight" class="input-field" placeholder="Weight (kg)">
-    <input type="text" id="dailyNotes" class="input-field" placeholder="Notes (e.g. felt strong)">
+    <input type="number" step="0.1" id="dailyWeight" class="input-field" placeholder="Bodyweight (kg)" style="text-align: left; padding-left: 10px;">
+    <input type="text" id="dailyNotes" class="input-field" placeholder="Notes (energy, reps, pain...)" style="text-align: left; padding-left: 10px;">
   </div>
 
-  <button class="btn" id="saveBtn">Save Today's Workout</button>
+  <button class="btn" id="saveBtn">Save Entry for Selected Day</button>
 
-  <!-- Trends / Graphs Section -->
-  <div class="card graph-container">
+  <!-- Weight Graph -->
+  <div class="card" style="margin-top: 14px;">
     <div class="card-header">
-      <div class="card-title">Weight Progress</div>
-      <div class="card-subtitle" id="trendSubtitle">Log at least 2 entries</div>
+      <div>
+        <div class="card-title">Weight Trajectory</div>
+        <div class="card-subtitle" id="graphSubtitle">Log at least 2 days of weight</div>
+      </div>
     </div>
     <canvas id="weightCanvas"></canvas>
     
     <div class="backup-actions">
-      <button class="btn-secondary" id="exportBtn">Export JSON</button>
-      <button class="btn-secondary" id="clearBtn">Reset Data</button>
+      <button class="btn-secondary" id="exportBtn">Export Backup</button>
+      <button class="btn-secondary" onclick="document.getElementById('importFile').click()">Import Backup</button>
+      <input type="file" id="importFile" accept=".json" style="display: none;">
+      <button class="btn-secondary" id="clearBtn">Clear All</button>
     </div>
   </div>
 
-  <div id="toast" class="toast">Session Saved!</div>
+  <div id="toast" class="toast">Saved!</div>
 
   <script>
-    // Routine Plan
     const ROUTINES = {
       1: {
         title: "Upper Body A (Vertical & Chest)",
-        desc: "Supersets: Pull vs Dip, Row vs Deficit Push",
-        exercises: [
-          { name: "Pull-Ups (3 sets)", placeholder: "e.g. 8, 7, 6 reps" },
-          { name: "Parallel Bar Dips (3 sets)", placeholder: "e.g. 10, 10, 8 reps" },
-          { name: "Deficit Push-Ups (3 sets)", placeholder: "e.g. 15, 12, 12 reps" },
-          { name: "Inverted Rows (3 sets)", placeholder: "e.g. 12, 10, 10 reps" }
-        ]
+        desc: "Pull vs Dip | Deficit Push vs Row",
+        exercises: ["Pull-Ups", "Parallel Bar Dips", "Deficit Push-Ups", "Inverted Rows"]
       },
       2: {
         title: "Ground: Sprint Re-Entry",
-        desc: "High power, non-fatiguing acceleration",
-        exercises: [
-          { name: "Dynamic Warmup (A-Skips, Swings)", placeholder: "Completed (yes/no)" },
-          { name: "5 × 40m Sprints (75-80% effort)", placeholder: "Rest 90s between reps" },
-          { name: "Hamstring/Calf Stretch Cooldown", placeholder: "Completed" }
-        ]
+        desc: "Acceleration drills & 75-80% sprints",
+        exercises: ["Dynamic Warmup & Drills", "5 × 40m Acceleration Sprints", "Hamstring & Hip Stretch"]
       },
       3: {
-        title: "Lower Body & Midsection",
-        desc: "Single-leg hypertrophy & core tension",
-        exercises: [
-          { name: "Bulgarian Split Squats (3 sets/leg)", placeholder: "e.g. 10, 10, 10 reps" },
-          { name: "Single-Leg RDLs (3 sets/leg)", placeholder: "e.g. 12, 12, 12 reps" },
-          { name: "Hanging Knee Raises (3 sets)", placeholder: "e.g. 15, 12, 12 reps" },
-          { name: "Hollow Body Hold (3 sets)", placeholder: "e.g. 35s, 30s, 30s" }
-        ]
+        title: "Lower Body & Core",
+        desc: "Unilateral strength & core compression",
+        exercises: ["Bulgarian Split Squats", "Single-Leg RDLs", "Hanging Knee Raises", "Hollow Body Hold"]
       },
       4: {
-        title: "Active Recovery & Aerobic Base",
-        desc: "Flush lactate, mobilize hips",
-        exercises: [
-          { name: "20-25 Min Easy Jog (Conversational)", placeholder: "Time / Distance" },
-          { name: "Hip Flexor & Ankle Mobility", placeholder: "10 mins" }
-        ]
+        title: "Active Recovery & Mobility",
+        desc: "Zone 2 aerobic flush & joint health",
+        exercises: ["20-25 Min Easy Jog", "Ankle & Hip Mobility"]
       },
       5: {
-        title: "Upper Body B (Shoulders & Triceps)",
-        desc: "Pike press focus + chin-up strength",
-        exercises: [
-          { name: "Pike Push-Ups (3 sets)", placeholder: "e.g. 8, 8, 7 reps" },
-          { name: "Chin-Ups or Neutral Pull (3 sets)", placeholder: "e.g. 7, 6, 6 reps" },
-          { name: "Diamond Push-Ups (3 sets)", placeholder: "e.g. 12, 10, 9 reps" },
-          { name: "Wide Inverted Rows (3 sets)", placeholder: "e.g. 12, 12, 10 reps" }
-        ]
+        title: "Upper Body B (Delts & Triceps)",
+        desc: "Pike press focus & chin-up strength",
+        exercises: ["Pike Push-Ups", "Chin-Ups", "Diamond Push-Ups", "Wide Inverted Rows"]
       },
       6: {
         title: "Speed & Sprint Volume",
-        desc: "Form, top speed mechanics, and rest",
-        exercises: [
-          { name: "Dynamic Sprint Drills (20m reps)", placeholder: "Done" },
-          { name: "6 × 50m Build-Up Sprints", placeholder: "Walk back recovery" },
-          { name: "Core: Side Planks (2 sets/side)", placeholder: "e.g. 40s each" }
-        ]
+        desc: "Form, top-end speed, and full rest",
+        exercises: ["Sprint Warmup Drills", "6 × 50m Build-Up Sprints", "Side Planks (2 sets/side)"]
       },
       0: {
         title: "Full Recovery Day",
-        desc: "Rebuild muscle tissue and recover CNS",
-        exercises: [
-          { name: "8,000 to 10,000 Easy Steps", placeholder: "Total steps logged" },
-          { name: "Protein Target Hit (~140g+)", placeholder: "Check if reached" }
-        ]
+        desc: "Tissue repair, rest, and walking",
+        exercises: ["8,000 - 10,000 Easy Steps", "Protein Target Hit (140g+)"]
       }
     };
 
     // State
-    let selectedDay = new Date().getDay();
-    let logs = JSON.parse(localStorage.getItem('cali_workout_logs') || '{}');
+    let currentWeekOffset = 0; // 0 = current week, -1 = last week, etc.
+    let selectedDateStr = formatDate(new Date());
+    let logs = JSON.parse(localStorage.getItem('calisprint_v2_logs') || '{}');
 
-    function getTodayKey() {
-      const d = new Date();
-      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    function formatDate(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     }
 
-    function init() {
-      renderDayTabs();
-      loadDay(selectedDay);
-      updateStats();
-      drawGraph();
+    function getWeekDays(offset) {
+      const now = new Date();
+      const currentDay = now.getDay(); // 0 = Sun, 1 = Mon ...
+      // Start week on Monday (1)
+      const diffToMonday = (currentDay === 0 ? -6 : 1) - currentDay;
+      const monday = new Date(now);
+      monday.setDate(now.getDate() + diffToMonday + (offset * 7));
+
+      const days = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        days.push(d);
+      }
+      return days;
     }
 
-    function renderDayTabs() {
+    function renderTabs() {
+      const days = getWeekDays(currentWeekOffset);
       const container = document.getElementById('daySelector');
       container.innerHTML = '';
-      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      
-      dayNames.forEach((name, idx) => {
+
+      const startStr = `${days[0].getDate()} ${days[0].toLocaleString('default', { month: 'short' })}`;
+      const endStr = `${days[6].getDate()} ${days[6].toLocaleString('default', { month: 'short' })}`;
+      document.getElementById('weekRangeLabel').innerText = `${startStr} - ${endStr}`;
+
+      const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+      days.forEach((dateObj, idx) => {
+        const dateKey = formatDate(dateObj);
+        const hasData = logs[dateKey] && Object.keys(logs[dateKey].exercises || {}).length > 0;
+
         const chip = document.createElement('div');
-        chip.className = `day-chip ${idx === selectedDay ? 'active' : ''}`;
-        chip.innerText = name;
+        chip.className = `day-chip ${dateKey === selectedDateStr ? 'active' : ''} ${hasData ? 'has-data' : ''}`;
+        chip.innerHTML = `
+          <span class="d-name">${dayNames[idx]}</span>
+          <span class="d-num">${dateObj.getDate()}</span>
+        `;
         chip.onclick = () => {
-          selectedDay = idx;
-          renderDayTabs();
-          loadDay(idx);
+          selectedDateStr = dateKey;
+          renderTabs();
+          loadSelectedDay();
         };
         container.appendChild(chip);
       });
     }
 
-    function loadDay(dayIndex) {
-      const routine = ROUTINES[dayIndex];
+    function loadSelectedDay() {
+      // Parse day of week from selected date
+      const parts = selectedDateStr.split('-');
+      const d = new Date(parts[0], parts[1] - 1, parts[2]);
+      const dayOfWeek = d.getDay(); // 0=Sun, 1=Mon...
+
+      const routine = ROUTINES[dayOfWeek];
       document.getElementById('routineName').innerText = routine.title;
       document.getElementById('routineDesc').innerText = routine.desc;
 
       const list = document.getElementById('exerciseList');
       list.innerHTML = '';
 
-      const todayKey = getTodayKey();
-      const savedForToday = logs[todayKey] || { exercises: {}, weight: '', notes: '' };
+      const dayData = logs[selectedDateStr] || { exercises: {}, weight: '', notes: '' };
 
-      routine.exercises.forEach((ex, i) => {
+      routine.exercises.forEach((name, exIdx) => {
         const item = document.createElement('div');
-        const exState = savedForToday.exercises[i] || { checked: false, val: '' };
-        
+        const exState = dayData.exercises[exIdx] || { checked: false, s1: '', s2: '', s3: '' };
+
         item.className = `exercise-item ${exState.checked ? 'done' : ''}`;
         item.innerHTML = `
           <div class="exercise-top">
-            <span class="exercise-name">${ex.name}</span>
-            <input type="checkbox" class="custom-checkbox" data-idx="${i}" ${exState.checked ? 'checked' : ''}>
+            <span class="exercise-name">${name}</span>
+            <input type="checkbox" class="custom-checkbox" data-ex="${exIdx}" ${exState.checked ? 'checked' : ''}>
           </div>
           <div class="set-inputs">
-            <input type="text" class="input-field" data-idx="${i}" value="${exState.val || ''}" placeholder="${ex.placeholder}">
+            <input type="text" class="input-field" placeholder="Set 1" data-ex="${exIdx}" data-set="s1" value="${exState.s1 || ''}">
+            <input type="text" class="input-field" placeholder="Set 2" data-ex="${exIdx}" data-set="s2" value="${exState.s2 || ''}">
+            <input type="text" class="input-field" placeholder="Set 3" data-ex="${exIdx}" data-set="s3" value="${exState.s3 || ''}">
           </div>
         `;
 
-        const checkbox = item.querySelector('input[type="checkbox"]');
-        checkbox.addEventListener('change', (e) => {
+        const chk = item.querySelector('input[type="checkbox"]');
+        chk.onchange = (e) => {
           item.classList.toggle('done', e.target.checked);
-          updateProgressPercent();
-        });
+          updateCompletion();
+        };
 
         list.appendChild(item);
       });
 
-      document.getElementById('dailyWeight').value = savedForToday.weight || '';
-      document.getElementById('dailyNotes').value = savedForToday.notes || '';
-      updateProgressPercent();
+      document.getElementById('dailyWeight').value = dayData.weight || '';
+      document.getElementById('dailyNotes').value = dayData.notes || '';
+      updateCompletion();
     }
 
-    function updateProgressPercent() {
+    function updateCompletion() {
       const checkboxes = document.querySelectorAll('#exerciseList input[type="checkbox"]');
       if (!checkboxes.length) return;
       let checked = 0;
-      checkboxes.forEach(c => { if(c.checked) checked++; });
-      const percent = Math.round((checked / checkboxes.length) * 100);
-      document.getElementById('completionRate').innerText = `${percent}%`;
+      checkboxes.forEach(c => { if (c.checked) checked++; });
+      document.getElementById('completionRate').innerText = `${Math.round((checked / checkboxes.length) * 100)}%`;
     }
 
     document.getElementById('saveBtn').onclick = () => {
-      const todayKey = getTodayKey();
-      const currentExercises = {};
+      const exRows = document.querySelectorAll('#exerciseList .exercise-item');
+      const exercises = {};
 
-      const rows = document.querySelectorAll('#exerciseList .exercise-item');
-      rows.forEach((r, idx) => {
-        const checked = r.querySelector('input[type="checkbox"]').checked;
-        const val = r.querySelector('input[type="text"]').value;
-        currentExercises[idx] = { checked, val };
+      exRows.forEach((row, i) => {
+        const checked = row.querySelector('.custom-checkbox').checked;
+        const s1 = row.querySelector('[data-set="s1"]').value;
+        const s2 = row.querySelector('[data-set="s2"]').value;
+        const s3 = row.querySelector('[data-set="s3"]').value;
+        exercises[i] = { checked, s1, s2, s3 };
       });
 
       const weight = document.getElementById('dailyWeight').value;
       const notes = document.getElementById('dailyNotes').value;
 
-      logs[todayKey] = {
-        dayIndex: selectedDay,
-        exercises: currentExercises,
+      logs[selectedDateStr] = {
+        exercises,
         weight: weight ? parseFloat(weight) : null,
-        notes: notes
+        notes
       };
 
-      localStorage.setItem('cali_workout_logs', JSON.stringify(logs));
-      showToast('Workout Saved!');
-      updateStats();
+      localStorage.setItem('calisprint_v2_logs', JSON.stringify(logs));
+      showToast('Saved for ' + selectedDateStr);
+      renderTabs();
+      updateBadge();
       drawGraph();
     };
 
-    function updateStats() {
-      const count = Object.keys(logs).length;
-      document.getElementById('adherenceBadge').innerText = `${count} Total Session${count === 1 ? '' : 's'}`;
+    function updateBadge() {
+      const count = Object.keys(logs).filter(k => logs[k].exercises && Object.keys(logs[k].exercises).length > 0).length;
+      document.getElementById('totalSessionsBadge').innerText = `${count} Logged`;
     }
 
     function showToast(msg) {
-      const toast = document.getElementById('toast');
-      toast.innerText = msg;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2000);
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
     }
 
-    // Canvas Line Graph (Works 100% offline, zero external library)
+    // Week navigation listeners
+    document.getElementById('prevWeekBtn').onclick = () => {
+      currentWeekOffset--;
+      renderTabs();
+    };
+    document.getElementById('nextWeekBtn').onclick = () => {
+      currentWeekOffset++;
+      renderTabs();
+    };
+
+    // Graph
     function drawGraph() {
       const canvas = document.getElementById('weightCanvas');
       const ctx = canvas.getContext('2d');
       const dpr = window.devicePixelRatio || 1;
-
-      // Fix canvas blur
       const rect = canvas.getBoundingClientRect();
+
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
       ctx.scale(dpr, dpr);
-
-      // Extract points
-      const points = [];
-      Object.keys(logs).sort().forEach(date => {
-        if (logs[date].weight) {
-          points.push({ date, weight: logs[date].weight });
-        }
-      });
 
       const w = rect.width;
       const h = rect.height;
       ctx.clearRect(0, 0, w, h);
 
-      if (points.length < 2) {
+      const entries = Object.keys(logs)
+        .filter(d => logs[d].weight)
+        .sort()
+        .map(d => ({ date: d.slice(5), weight: logs[d].weight }));
+
+      if (entries.length < 2) {
         ctx.fillStyle = '#64748b';
         ctx.font = '12px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('Log weight for at least 2 days to draw graph', w / 2, h / 2);
+        ctx.fillText('Log bodyweight on at least 2 days to draw graph', w / 2, h / 2);
         return;
       }
 
-      document.getElementById('trendSubtitle').innerText = `${points[0].weight}kg → ${points[points.length-1].weight}kg`;
+      document.getElementById('graphSubtitle').innerText = `${entries[0].weight}kg → ${entries[entries.length - 1].weight}kg`;
 
-      const weights = points.map(p => p.weight);
+      const weights = entries.map(e => e.weight);
       const minW = Math.min(...weights) - 1;
       const maxW = Math.max(...weights) + 1;
       const pad = 30;
 
-      const getX = i => pad + (i / (points.length - 1)) * (w - pad * 2);
+      const getX = i => pad + (i / (entries.length - 1)) * (w - pad * 2);
       const getY = val => (h - pad) - ((val - minW) / (maxW - minW)) * (h - pad * 2);
 
-      // Draw Grid Line
-      ctx.strokeStyle = '#242f42';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(pad, getY(minW + 1));
-      ctx.lineTo(w - pad, getY(minW + 1));
-      ctx.stroke();
-
-      // Draw Trend Line
+      // Line
       ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
-      points.forEach((p, i) => {
+      entries.forEach((e, i) => {
         const x = getX(i);
-        const y = getY(p.weight);
+        const y = getY(e.weight);
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       });
       ctx.stroke();
 
-      // Draw Points
-      points.forEach((p, i) => {
+      // Points & Labels
+      entries.forEach((e, i) => {
         const x = getX(i);
-        const y = getY(p.weight);
+        const y = getY(e.weight);
 
         ctx.fillStyle = '#0b0f17';
         ctx.beginPath();
-        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.fillStyle = '#38bdf8';
         ctx.beginPath();
-        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.arc(x, y, 2.5, 0, Math.PI * 2);
         ctx.fill();
 
-        // Label
         ctx.fillStyle = '#94a3b8';
-        ctx.font = '10px sans-serif';
+        ctx.font = '9px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(`${p.weight}`, x, y - 10);
+        ctx.fillText(`${e.weight}`, x, y - 8);
+        ctx.fillText(`${e.date}`, x, h - 8);
       });
     }
 
-    // Export & Reset
+    // Export / Import
     document.getElementById('exportBtn').onclick = () => {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(logs, null, 2));
-      const dlAnchor = document.createElement('a');
-      dlAnchor.setAttribute("href", dataStr);
-      dlAnchor.setAttribute("download", `calisprint_backup_${getTodayKey()}.json`);
-      dlAnchor.click();
+      const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `calisprint_backup_${selectedDateStr}.json`;
+      a.click();
+    };
+
+    document.getElementById('importFile').onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const imported = JSON.parse(evt.target.result);
+          logs = { ...logs, ...imported };
+          localStorage.setItem('calisprint_v2_logs', JSON.stringify(logs));
+          renderTabs();
+          loadSelectedDay();
+          drawGraph();
+          updateBadge();
+          showToast('Import successful!');
+        } catch(err) {
+          alert('Invalid backup JSON file.');
+        }
+      };
+      reader.readAsText(file);
     };
 
     document.getElementById('clearBtn').onclick = () => {
-      if (confirm("Reset and delete all saved history?")) {
-        localStorage.removeItem('cali_workout_logs');
+      if (confirm('Permanently delete all saved entries on this device?')) {
+        localStorage.removeItem('calisprint_v2_logs');
         logs = {};
-        loadDay(selectedDay);
-        updateStats();
+        renderTabs();
+        loadSelectedDay();
         drawGraph();
+        updateBadge();
       }
     };
 
     window.addEventListener('resize', drawGraph);
-    init();
+
+    // Initial Load
+    renderTabs();
+    loadSelectedDay();
+    updateBadge();
+    drawGraph();
   </script>
 </body>
 </html>
