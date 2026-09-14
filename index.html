@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CaliSprint Tracker</title>
+  <!-- Mobile App / PWA Capabilities -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CaliSprint">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0f172a">
+  
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --card-bg: #151c28;
+      --card-border: #242f42;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.15);
+      --success: #34d399;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --danger: #f87171;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 16px 16px 80px 16px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .streak-badge {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Day Selector Tabs */
+    .day-selector {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      scrollbar-width: none;
+    }
+    .day-selector::-webkit-scrollbar { display: none; }
+
+    .day-chip {
+      flex: 1;
+      min-width: 44px;
+      padding: 8px 4px;
+      text-align: center;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .day-chip.active {
+      background: var(--accent);
+      color: #0b0f17;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* Workout Card */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Exercise Rows */
+    .exercise-item {
+      background: #0f1520;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      transition: border 0.2s;
+    }
+
+    .exercise-item.done {
+      border-color: var(--success);
+      background: rgba(52, 211, 153, 0.04);
+    }
+
+    .exercise-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .exercise-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .custom-checkbox {
+      width: 22px;
+      height: 22px;
+      accent-color: var(--success);
+      cursor: pointer;
+    }
+
+    .set-inputs {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .input-field {
+      width: 100%;
+      background: #1a2233;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .input-field:focus { border-color: var(--accent); }
+
+    /* Controls & Weight Input */
+    .meta-inputs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      width: 100%;
+      background: var(--accent);
+      color: #0b0f17;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    /* Graph Section */
+    .graph-container {
+      margin-top: 10px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 180px;
+      display: block;
+      margin-top: 10px;
+    }
+
+    .backup-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--success);
+      color: #0b0f17;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>CaliSprint</h1>
+    <div class="streak-badge" id="adherenceBadge">0 Logs</div>
+  </header>
+
+  <!-- Weekday Tabs -->
+  <div class="day-selector" id="daySelector">
+    <div class="day-chip" data-day="0">Sun</div>
+    <div class="day-chip" data-day="1">Mon</div>
+    <div class="day-chip" data-day="2">Tue</div>
+    <div class="day-chip" data-day="3">Wed</div>
+    <div class="day-chip" data-day="4">Thu</div>
+    <div class="day-chip" data-day="5">Fri</div>
+    <div class="day-chip" data-day="6">Sat</div>
+  </div>
+
+  <!-- Main Checklist Form -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title" id="routineName">Loading...</div>
+        <div class="card-subtitle" id="routineDesc">Loading...</div>
+      </div>
+      <span style="font-size: 0.8rem; color: var(--accent);" id="completionRate">0%</span>
+    </div>
+    <div id="exerciseList"></div>
+  </div>
+
+  <!-- Additional Day Stats -->
+  <div class="meta-inputs">
+    <input type="number" step="0.1" id="dailyWeight" class="input-field" placeholder="Weight (kg)">
+    <input type="text" id="dailyNotes" class="input-field" placeholder="Notes (e.g. felt strong)">
+  </div>
+
+  <button class="btn" id="saveBtn">Save Today's Workout</button>
+
+  <!-- Trends / Graphs Section -->
+  <div class="card graph-container">
+    <div class="card-header">
+      <div class="card-title">Weight Progress</div>
+      <div class="card-subtitle" id="trendSubtitle">Log at least 2 entries</div>
+    </div>
+    <canvas id="weightCanvas"></canvas>
+    
+    <div class="backup-actions">
+      <button class="btn-secondary" id="exportBtn">Export JSON</button>
+      <button class="btn-secondary" id="clearBtn">Reset Data</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">Session Saved!</div>
+
+  <script>
+    // Routine Plan
+    const ROUTINES = {
+      1: {
+        title: "Upper Body A (Vertical & Chest)",
+        desc: "Supersets: Pull vs Dip, Row vs Deficit Push",
+        exercises: [
+          { name: "Pull-Ups (3 sets)", placeholder: "e.g. 8, 7, 6 reps" },
+          { name: "Parallel Bar Dips (3 sets)", placeholder: "e.g. 10, 10, 8 reps" },
+          { name: "Deficit Push-Ups (3 sets)", placeholder: "e.g. 15, 12, 12 reps" },
+          { name: "Inverted Rows (3 sets)", placeholder: "e.g. 12, 10, 10 reps" }
+        ]
+      },
+      2: {
+        title: "Ground: Sprint Re-Entry",
+        desc: "High power, non-fatiguing acceleration",
+        exercises: [
+          { name: "Dynamic Warmup (A-Skips, Swings)", placeholder: "Completed (yes/no)" },
+          { name: "5 × 40m Sprints (75-80% effort)", placeholder: "Rest 90s between reps" },
+          { name: "Hamstring/Calf Stretch Cooldown", placeholder: "Completed" }
+        ]
+      },
+      3: {
+        title: "Lower Body & Midsection",
+        desc: "Single-leg hypertrophy & core tension",
+        exercises: [
+          { name: "Bulgarian Split Squats (3 sets/leg)", placeholder: "e.g. 10, 10, 10 reps" },
+          { name: "Single-Leg RDLs (3 sets/leg)", placeholder: "e.g. 12, 12, 12 reps" },
+          { name: "Hanging Knee Raises (3 sets)", placeholder: "e.g. 15, 12, 12 reps" },
+          { name: "Hollow Body Hold (3 sets)", placeholder: "e.g. 35s, 30s, 30s" }
+        ]
+      },
+      4: {
+        title: "Active Recovery & Aerobic Base",
+        desc: "Flush lactate, mobilize hips",
+        exercises: [
+          { name: "20-25 Min Easy Jog (Conversational)", placeholder: "Time / Distance" },
+          { name: "Hip Flexor & Ankle Mobility", placeholder: "10 mins" }
+        ]
+      },
+      5: {
+        title: "Upper Body B (Shoulders & Triceps)",
+        desc: "Pike press focus + chin-up strength",
+        exercises: [
+          { name: "Pike Push-Ups (3 sets)", placeholder: "e.g. 8, 8, 7 reps" },
+          { name: "Chin-Ups or Neutral Pull (3 sets)", placeholder: "e.g. 7, 6, 6 reps" },
+          { name: "Diamond Push-Ups (3 sets)", placeholder: "e.g. 12, 10, 9 reps" },
+          { name: "Wide Inverted Rows (3 sets)", placeholder: "e.g. 12, 12, 10 reps" }
+        ]
+      },
+      6: {
+        title: "Speed & Sprint Volume",
+        desc: "Form, top speed mechanics, and rest",
+        exercises: [
+          { name: "Dynamic Sprint Drills (20m reps)", placeholder: "Done" },
+          { name: "6 × 50m Build-Up Sprints", placeholder: "Walk back recovery" },
+          { name: "Core: Side Planks (2 sets/side)", placeholder: "e.g. 40s each" }
+        ]
+      },
+      0: {
+        title: "Full Recovery Day",
+        desc: "Rebuild muscle tissue and recover CNS",
+        exercises: [
+          { name: "8,000 to 10,000 Easy Steps", placeholder: "Total steps logged" },
+          { name: "Protein Target Hit (~140g+)", placeholder: "Check if reached" }
+        ]
+      }
+    };
+
+    // State
+    let selectedDay = new Date().getDay();
+    let logs = JSON.parse(localStorage.getItem('cali_workout_logs') || '{}');
+
+    function getTodayKey() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function init() {
+      renderDayTabs();
+      loadDay(selectedDay);
+      updateStats();
+      drawGraph();
+    }
+
+    function renderDayTabs() {
+      const container = document.getElementById('daySelector');
+      container.innerHTML = '';
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      
+      dayNames.forEach((name, idx) => {
+        const chip = document.createElement('div');
+        chip.className = `day-chip ${idx === selectedDay ? 'active' : ''}`;
+        chip.innerText = name;
+        chip.onclick = () => {
+          selectedDay = idx;
+          renderDayTabs();
+          loadDay(idx);
+        };
+        container.appendChild(chip);
+      });
+    }
+
+    function loadDay(dayIndex) {
+      const routine = ROUTINES[dayIndex];
+      document.getElementById('routineName').innerText = routine.title;
+      document.getElementById('routineDesc').innerText = routine.desc;
+
+      const list = document.getElementById('exerciseList');
+      list.innerHTML = '';
+
+      const todayKey = getTodayKey();
+      const savedForToday = logs[todayKey] || { exercises: {}, weight: '', notes: '' };
+
+      routine.exercises.forEach((ex, i) => {
+        const item = document.createElement('div');
+        const exState = savedForToday.exercises[i] || { checked: false, val: '' };
+        
+        item.className = `exercise-item ${exState.checked ? 'done' : ''}`;
+        item.innerHTML = `
+          <div class="exercise-top">
+            <span class="exercise-name">${ex.name}</span>
+            <input type="checkbox" class="custom-checkbox" data-idx="${i}" ${exState.checked ? 'checked' : ''}>
+          </div>
+          <div class="set-inputs">
+            <input type="text" class="input-field" data-idx="${i}" value="${exState.val || ''}" placeholder="${ex.placeholder}">
+          </div>
+        `;
+
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        checkbox.addEventListener('change', (e) => {
+          item.classList.toggle('done', e.target.checked);
+          updateProgressPercent();
+        });
+
+        list.appendChild(item);
+      });
+
+      document.getElementById('dailyWeight').value = savedForToday.weight || '';
+      document.getElementById('dailyNotes').value = savedForToday.notes || '';
+      updateProgressPercent();
+    }
+
+    function updateProgressPercent() {
+      const checkboxes = document.querySelectorAll('#exerciseList input[type="checkbox"]');
+      if (!checkboxes.length) return;
+      let checked = 0;
+      checkboxes.forEach(c => { if(c.checked) checked++; });
+      const percent = Math.round((checked / checkboxes.length) * 100);
+      document.getElementById('completionRate').innerText = `${percent}%`;
+    }
+
+    document.getElementById('saveBtn').onclick = () => {
+      const todayKey = getTodayKey();
+      const currentExercises = {};
+
+      const rows = document.querySelectorAll('#exerciseList .exercise-item');
+      rows.forEach((r, idx) => {
+        const checked = r.querySelector('input[type="checkbox"]').checked;
+        const val = r.querySelector('input[type="text"]').value;
+        currentExercises[idx] = { checked, val };
+      });
+
+      const weight = document.getElementById('dailyWeight').value;
+      const notes = document.getElementById('dailyNotes').value;
+
+      logs[todayKey] = {
+        dayIndex: selectedDay,
+        exercises: currentExercises,
+        weight: weight ? parseFloat(weight) : null,
+        notes: notes
+      };
+
+      localStorage.setItem('cali_workout_logs', JSON.stringify(logs));
+      showToast('Workout Saved!');
+      updateStats();
+      drawGraph();
+    };
+
+    function updateStats() {
+      const count = Object.keys(logs).length;
+      document.getElementById('adherenceBadge').innerText = `${count} Total Session${count === 1 ? '' : 's'}`;
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    // Canvas Line Graph (Works 100% offline, zero external library)
+    function drawGraph() {
+      const canvas = document.getElementById('weightCanvas');
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+
+      // Fix canvas blur
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      // Extract points
+      const points = [];
+      Object.keys(logs).sort().forEach(date => {
+        if (logs[date].weight) {
+          points.push({ date, weight: logs[date].weight });
+        }
+      });
+
+      const w = rect.width;
+      const h = rect.height;
+      ctx.clearRect(0, 0, w, h);
+
+      if (points.length < 2) {
+        ctx.fillStyle = '#64748b';
+        ctx.font = '12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Log weight for at least 2 days to draw graph', w / 2, h / 2);
+        return;
+      }
+
+      document.getElementById('trendSubtitle').innerText = `${points[0].weight}kg → ${points[points.length-1].weight}kg`;
+
+      const weights = points.map(p => p.weight);
+      const minW = Math.min(...weights) - 1;
+      const maxW = Math.max(...weights) + 1;
+      const pad = 30;
+
+      const getX = i => pad + (i / (points.length - 1)) * (w - pad * 2);
+      const getY = val => (h - pad) - ((val - minW) / (maxW - minW)) * (h - pad * 2);
+
+      // Draw Grid Line
+      ctx.strokeStyle = '#242f42';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad, getY(minW + 1));
+      ctx.lineTo(w - pad, getY(minW + 1));
+      ctx.stroke();
+
+      // Draw Trend Line
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      points.forEach((p, i) => {
+        const x = getX(i);
+        const y = getY(p.weight);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      // Draw Points
+      points.forEach((p, i) => {
+        const x = getX(i);
+        const y = getY(p.weight);
+
+        ctx.fillStyle = '#0b0f17';
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Label
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${p.weight}`, x, y - 10);
+      });
+    }
+
+    // Export & Reset
+    document.getElementById('exportBtn').onclick = () => {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(logs, null, 2));
+      const dlAnchor = document.createElement('a');
+      dlAnchor.setAttribute("href", dataStr);
+      dlAnchor.setAttribute("download", `calisprint_backup_${getTodayKey()}.json`);
+      dlAnchor.click();
+    };
+
+    document.getElementById('clearBtn').onclick = () => {
+      if (confirm("Reset and delete all saved history?")) {
+        localStorage.removeItem('cali_workout_logs');
+        logs = {};
+        loadDay(selectedDay);
+        updateStats();
+        drawGraph();
+      }
+    };
+
+    window.addEventListener('resize', drawGraph);
+    init();
+  </script>
+</body>
+</html>
